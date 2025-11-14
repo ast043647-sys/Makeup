@@ -1,45 +1,56 @@
-/* Pink Pastel Makeup Game CSS */ body { margin: 0; padding: 0; font-family: "Inter", sans-serif; background: linear-gradient(135deg, #ffe9f4, #ffffff); color: #444; }
-
-.app { display: flex; height: 100vh; overflow: hidden; }
-
-/* LEFT PANEL */ .panel { width: 310px; background: #ffedf7; border-right: 3px solid #ffd3e6; padding: 20px; overflow-y: auto; }
-
-.logo { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; } .logo-icon { font-size: 34px; } .title { font-size: 20px; font-weight: 700; } .sub { font-size: 13px; color: #a56c8c; }
-
-.menu-tabs { display: flex; gap: 10px; margin-bottom: 15px; } .tab { flex: 1; background: #ffcbe6; padding: 8px 0; text-align: center; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; } .tab.active { background: #ff8fca; color: white; }
-
-.section { margin-bottom: 20px; }
-
-.small { font-size: 13px; color: #555; font-weight: 600; }
-
-.avatars, .dress-choices { display: flex; gap: 10px; margin-top: 10px; } .avatar-thumb { width: 65px; height: 90px; padding: 5px; background: white; border-radius: 10px; border: 2px solid #ffd9ea; cursor: pointer; transition: 0.2s; } .avatar-thumb:hover { transform: scale(1.05); } .avatar-thumb.selected { border-color: #ff74b8; box-shadow: 0 0 7px #ff9fd0; }
-
-.rules { font-size: 12px; padding-left: 20px; color: #444; }
-
-.big-actions { display: flex; flex-direction: column; gap: 10px; }
-
-.btn { padding: 10px; font-weight: 600; border: none; background: #ff8ecb; border-radius: 10px; color: white; cursor: pointer; font-size: 14px; transition: 0.2s; } .btn:hover { transform: scale(1.05); } .secondary { background: #ffc7e7; color: #444; } .start-anim { animation: pulse 1.2s infinite alternate; } @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.08); } }
-
-/* STAGE */ .stage { flex: 1; padding: 20px; display: flex; flex-direction: column; }
-
-.stage-top { display: flex; justify-content: space-between; align-items: center; }
-
-.stage-title { display: flex; flex-direction: column; } .title-strong { font-size: 24px; font-weight: 700; }
-
-.stage-actions { display: flex; gap: 20px; align-items: center; }
-
-.emoji-row { display: flex; gap: 10px; } .emoji { padding: 8px; font-size: 22px; background: #ffe1f1; border-radius: 12px; cursor: pointer; transition: 0.2s; } .emoji:hover { transform: scale(1.2); }
-
-.control-icons .tool-btn { padding: 8px 10px; border-radius: 8px; background: #ffc9e8; border: none; cursor: pointer; }
-
-.control-row { display: flex; margin-top: 20px; justify-content: space-between; }
-
-.tools-left { display: flex; gap: 10px; } .tool-btn { background: #ffd4eb; border: none; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-weight: 600; } .tool-btn.active { background: #ff8ecb; color: white; }
-
-.palette-area { display: flex; flex-direction: column; gap: 8px; margin-right: 20px; } .palette { display: flex; gap: 8px; } .sw { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid #ffcde7; } .sw:hover { transform: scale(1.1); }
-
-.canvas-wrap { display: flex; justify-content: center; align-items: center; height: 100%; margin-top: 15px; } #avatarSVG { width: 320px; height: auto; }
-
-.bottom-row { margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
-
-/* MODAL */ .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; } .modal-card { background: white; padding: 20px; width: 320px; border-radius: 10px; animation: pop 0.3s ease; } @keyframes pop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } } .modal-header { display: flex; justify-content: space-between; margin-bottom: 15px; } .modal-title { font-size: 18px; font-weight: 700; } .close { cursor: pointer; font-size: 18px; } .modal-list { font-size: 13px; padding-left: 20px; margin-bottom: 20px; } .modal-actions { text-align: center; }
+/* Copy the following into styles.css */
+:root{
+  --pink-100:#ffeef6;
+  --pink-200:#ffd8ec;
+  --pink-300:#ffc2e1;
+  --accent:#ff74b1;
+  --muted:#f6f0f4;
+  --text:#332233;
+  --card:#fff6f9;
+}
+*{box-sizing:border-box}
+html,body,#app{height:100%}
+body{
+  margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto; background:linear-gradient(180deg,var(--pink-100),var(--pink-200));color:var(--text);
+}
+.screen{padding:18px;max-width:1100px;margin:0 auto}
+.hidden{display:none}
+.logo{font-size:28px;margin:24px 0;text-align:center}
+.menu-cards{display:flex;gap:12px;justify-content:center;margin:18px 0}
+.card{background:var(--card);border-radius:16px;padding:16px 20px;border:1px solid rgba(255,255,255,0.6);font-size:16px}
+.big{font-size:20px;padding:14px 22px;border-radius:18px;background:linear-gradient(90deg,var(--pink-300),#ffd3e8);border:none}
+.hint{text-align:center;margin-top:14px;color:#8f6a7b}
+.start-row{text-align:center}
+.topbar{display:flex;align-items:center;justify-content:space-between}
+.topbar button{background:none;border:none;font-size:16px}
+.game-area{display:flex;gap:12px;margin-top:12px}
+.avatar-area{flex:1;display:flex;align-items:center;justify-content:center;padding:12px}
+.avatar{width:320px;height:420px;background:linear-gradient(180deg,#fff,#fff6);border-radius:28px;box-shadow:0 8px 24px rgba(0,0,0,0.08);position:relative;overflow:hidden;display:flex;align-items:flex-start;justify-content:center}
+.face{position:absolute;top:86px;width:220px;height:220px;border-radius:50%;background:linear-gradient(#ffe8f2,#fff3f7);left:50%;transform:translateX(-50%);box-shadow:inset 0 -8px 20px rgba(255,150,190,0.08)}
+.eye{width:18px;height:18px;background:#5a3a5a;border-radius:50%;position:absolute;top:88px}
+.eye.left{left:58px}
+.eye.right{right:58px}
+.lips{width:60px;height:28px;border-radius:20px;background:linear-gradient(#ff9ac3,#ff6fae);position:absolute;top:170px;left:50%;transform:translateX(-50%)}
+.hair{position:absolute;top:0;width:100%;height:140px}
+.hair--placeholder{background:linear-gradient(90deg,#ffd6e9,#ffd0f0)}
+.clothes{position:absolute;bottom:0;width:100%;height:140px;border-top-left-radius:20px;border-top-right-radius:20px}
+.clothes--placeholder{background:linear-gradient(180deg,#fff4f9,#ffe6f2)}
+.palette{width:300px;background:rgba(255,255,255,0.6);padding:12px;border-radius:14px}
+.items{display:flex;flex-wrap:wrap;gap:8px}
+.item{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;border:2px dashed rgba(255,255,255,0.5);touch-action:none}
+.options{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.option{padding:10px;border-radius:12px;background:linear-gradient(180deg,#fff,#fff6);border:1px solid rgba(0,0,0,0.04)}
+.bottombar{display:flex;gap:12px;justify-content:center;margin-top:12px}
+.wardrobe-area{padding:12px}
+.clothes-list{display:flex;gap:12px;flex-wrap:wrap}
+.cloth{width:120px;height:160px;border-radius:12px;padding:8px;display:flex;align-items:flex-end;justify-content:center}
+button{cursor:pointer}
+#emojiContainer{position:fixed;left:0;top:0;pointer-events:none;width:100%;height:100%;overflow:hidden}
+.emoji{position:absolute;font-size:28px;animation:floatUp 1500ms ease-out forwards}
+@keyframes floatUp{0%{transform:translateY(0) scale(0.9);opacity:1}100%{transform:translateY(-140px) scale(1.2);opacity:0}}
+/* Responsive */
+@media(max-width:900px){
+  .game-area{flex-direction:column}
+  .palette{width:100%}
+  .avatar{width:260px;height:360px}
+  }
