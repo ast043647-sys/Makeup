@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Makeup Pastel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="container">
+    <div class="controls">
+      <h2>Mini Makeup — Pink Pastel</h2>
+
+      <div class="tools">
+        <button class="tool active" data-tool="lip">💄 Lipstick</button>
+        <button class="tool" data-tool="blush">🌸 Blush</button>
+        <button class="tool" data-tool="eye">✨ Eyeshadow</button>
+      </div>
+
+      <div class="palette">
+        <div class="swatch selected" data-color="#FFB7D3"></div>
+        <div class="swatch" data-color="#FFCFEF"></div>
+        <div class="swatch" data-color="#FFDDEA"></div>
+        <div class="swatch" data-color="#F8C3FF"></div>
+        <div class="swatch" data-color="#FFD4D7"></div>
+      </div>
+
+    </div>
+
+    <div class="canvas">
+      <svg id="face" viewBox="0 0 300 400">
+        <ellipse cx="150" cy="200" rx="90" ry="120" fill="#FFEFF4"></ellipse>
+
+        <!-- Bibir -->
+        <path id="lip" d="M110,250 Q150,280 190,250 Q150,265 110,250" 
+              fill="#FFADC6"></path>
+
+        <!-- Pipi -->
+        <circle id="cheekL" cx="110" cy="220" r="18" fill="transparent"></circle>
+        <circle id="cheekR" cx="190" cy="220" r="18" fill="transparent"></circle>
+
+        <!-- Eyeshadow -->
+        <ellipse id="eyeL" cx="120" cy="180" rx="25" ry="10" fill="transparent"></ellipse>
+        <ellipse id="eyeR" cx="180" cy="180" rx="25" ry="10" fill="transparent"></ellipse>
+
+      </svg>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
