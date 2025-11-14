@@ -2,39 +2,102 @@
 <html lang="id">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Makeup & Dress-Up — Pastel Pink Game</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Pastel Pink Makeup — Mobile</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div id="app" class="theme-pastel">
-    <!-- Splash / Menu -->
-    <section id="menu" class="screen">
-      <h1 class="logo">Makeup & Style — 💖</h1>
+  <div id="app">
+    <!-- Header / Title -->
+    <header class="top">
+      <h1>🎀 Pastel Pink Makeup</h1>
+    </header>
 
-      <nav class="menu-cards">
-        <button class="card" data-screen="makeup">Makeup</button>
-        <button class="card" data-screen="wardrobe">Style Baju</button>
-        <button class="card" data-screen="instructions">Petunjuk</button>
-      </nav>
-
-      <div class="start-row">
-        <button id="startBtn" class="big">📸 Mulai</button>
+    <!-- MENU -->
+    <section id="menu" class="screen active">
+      <div class="menu-cards">
+        <button class="menu-btn" data-open="makeup">💄 Makeup</button>
+        <button class="menu-btn" data-open="wardrobe">👗 Style Baju</button>
+        <button class="menu-btn" data-open="instructions">📘 Petunjuk</button>
       </div>
-
-      <p class="hint">Tema: pastel pink — sentuh/geser makeup untuk menerapkan, ketuk untuk memilih.</p>
+      <button id="startGame" class="start-btn">▶ Mulai</button>
+      <p class="small">Tema: pastel pink • Ketuk atau geser item ke avatar</p>
     </section>
 
-    <!-- Instructions -->
-    <section id="instructions" class="screen hidden">
-      <h2>Petunjuk Cara Bermain</h2>
+    <!-- INSTRUCTIONS -->
+    <section id="instructions" class="screen">
+      <h2>Petunjuk</h2>
       <ol>
-        <li>Pilih <strong>Makeup</strong> untuk membuka palet. Ketuk untuk pilih, geser untuk taruh ke wajah.</li>
-        <li>Pilih <strong>Gaya Rambut</strong> dan <strong>Baju</strong> di layar Wardrobe.</li>
-        <li>Kamu bisa mengubah pilihan kapan saja. Setelah selesai, tekan tombol <strong>Foto</strong> untuk menyimpan.</li>
-        <li>Setiap tombol yang ditekan akan memunculkan emoji pink lucu 🎀</li>
+        <li>Tekan <strong>Mulai</strong> untuk masuk ke layar Makeup.</li>
+        <li>Ketuk item untuk langsung menerapkan, atau seret (drag) ke avatar.</li>
+        <li>Pilih gaya rambut dan baju di tab Wardrobe.</li>
+        <li>Tekan <strong>📷 Foto</strong> untuk menyimpan hasil (akan terunduh ke HP).</li>
       </ol>
-      <button class="back">Kembali</button>
+      <button class="back-btn">Kembali</button>
+    </section>
+
+    <!-- MAKEUP -->
+    <section id="makeup" class="screen">
+      <div class="game-top">
+        <button class="back-btn">‹ Menu</button>
+        <div class="controls">
+          <button id="resetBtn">Reset</button>
+          <button id="toWardrobe">Style Baju ➜</button>
+        </div>
+      </div>
+
+      <main class="play-area">
+        <div class="avatar-wrap" id="avatarWrap" aria-label="Avatar area">
+          <!-- layered images for shoulder-up avatar -->
+          <img id="avatarBase" class="layer base" src="" alt="base" />
+          <img id="avatarMakeup" class="layer makeup-layer" src="" alt="makeup" />
+          <img id="avatarHair" class="layer hair-layer" src="" alt="hair" />
+          <img id="avatarCloth" class="layer cloth-layer" src="" alt="cloth" />
+        </div>
+
+        <div class="panel">
+          <h3>Makeup</h3>
+          <div id="makeupItems" class="scroll-x items"></div>
+
+          <h3>Rambut</h3>
+          <div id="hairItems" class="scroll-x items"></div>
+
+          <h3>Aksesoris</h3>
+          <div id="accessItems" class="scroll-x items"></div>
+        </div>
+      </main>
+
+      <footer class="bottom-bar">
+        <button id="takePhoto" class="photo-btn">📷 Foto</button>
+      </footer>
+    </section>
+
+    <!-- WARDROBE -->
+    <section id="wardrobe" class="screen">
+      <div class="game-top">
+        <button class="back-btn">‹ Kembali</button>
+        <h2>Wardrobe</h2>
+      </div>
+
+      <main class="wardrobe-main">
+        <div id="clothesItems" class="scroll-x items"></div>
+      </main>
+
+      <footer class="bottom-bar">
+        <button class="back-btn">Selesai</button>
+      </footer>
+    </section>
+
+    <!-- emoji container -->
+    <div id="emojiContainer" aria-hidden="true"></div>
+
+    <!-- hidden canvas for snapshot -->
+    <canvas id="snapshot" width="800" height="1000" style="display:none;"></canvas>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+                            </html>      <button class="back">Kembali</button>
     </section>
 
     <!-- Makeup screen -->
