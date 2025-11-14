@@ -1,0 +1,75 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #FFEFF8;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.container {
+  display: flex;
+  gap: 20px;
+}
+
+.controls {
+  background: #FFD9E8;
+  padding: 20px;
+  border-radius: 15px;
+  width: 220px;
+}
+
+h2 {
+  margin-top: 0;
+  color: #7A4565;
+}
+
+.tools {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tool {
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  background: #FFE5F2;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.tool.active {
+  background: #FFB7D3;
+  color: white;
+}
+
+.palette {
+  margin-top: 20px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid white;
+}
+
+.swatch.selected {
+  outline: 3px solid #FF6FA7;
+}
+
+.canvas {
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+}
+
+svg {
+  width: 300px;
+  height: 400px;
+}
