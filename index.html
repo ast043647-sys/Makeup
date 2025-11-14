@@ -1,54 +1,192 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mini Makeup Pastel</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mini Makeup & Dress-up — Pink Pastel</title>
+
+  <!-- External CSS (style.css) -->
   <link rel="stylesheet" href="style.css">
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
-
-  <div class="container">
-    <div class="controls">
-      <h2>Mini Makeup — Pink Pastel</h2>
-
-      <div class="tools">
-        <button class="tool active" data-tool="lip">💄 Lipstick</button>
-        <button class="tool" data-tool="blush">🌸 Blush</button>
-        <button class="tool" data-tool="eye">✨ Eyeshadow</button>
+  <div class="app" aria-live="polite">
+    <!-- LEFT PANEL: menu, avatar selection -->
+    <div class="panel" id="leftPanel">
+      <div class="logo">
+        <div class="logo-icon">💄</div>
+        <div>
+          <div class="title">Mini Makeup & Dress-up</div>
+          <div class="sub">Pink Pastel Edition</div>
+        </div>
       </div>
 
-      <div class="palette">
-        <div class="swatch selected" data-color="#FFB7D3"></div>
-        <div class="swatch" data-color="#FFCFEF"></div>
-        <div class="swatch" data-color="#FFDDEA"></div>
-        <div class="swatch" data-color="#F8C3FF"></div>
-        <div class="swatch" data-color="#FFD4D7"></div>
+      <div class="menu-tabs" role="tablist" aria-label="Menu">
+        <div class="tab active" id="tabDress">Baju</div>
+        <div class="tab" id="tabMakeup">Makeup</div>
+      </div>
+
+      <div class="section" id="sectionAvatar">
+        <div class="small">Pilih Avatar</div>
+        <div class="avatars" id="avatars">
+          <div class="avatar-thumb selected" data-idx="0" title="Avatar 1" id="thumb0">
+            <svg width="68" viewBox="0 0 80 100" aria-hidden="true"><rect x="6" y="10" width="68" height="80" rx="8" fill="#fff"/><circle cx="40" cy="34" r="18" fill="#FFEFEF" stroke="#ffdce9"/><path d="M20,66 C28,78 52,78 60,66" stroke="#c07a88" stroke-width="2" fill="none"/></svg>
+          </div>
+
+          <div class="avatar-thumb" data-idx="1" title="Avatar 2" id="thumb1">
+            <svg width="68" viewBox="0 0 80 100" aria-hidden="true"><rect x="6" y="10" width="68" height="80" rx="8" fill="#fff"/><circle cx="40" cy="34" r="18" fill="#FFF0E6" stroke="#ffe0d6"/><path d="M20,66 C28,76 52,76 60,66" stroke="#b06f6e" stroke-width="2" fill="none"/></svg>
+          </div>
+
+          <div class="avatar-thumb" data-idx="2" title="Avatar 3" id="thumb2">
+            <svg width="68" viewBox="0 0 80 100" aria-hidden="true"><rect x="6" y="10" width="68" height="80" rx="8" fill="#fff"/><circle cx="40" cy="34" r="18" fill="#FFF5EE" stroke="#ffe6d9"/><path d="M18,66 C28,80 52,80 62,66" stroke="#c07a88" stroke-width="2" fill="none"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="sectionDress">
+        <div class="small">Pilih Baju</div>
+        <div class="dress-choices" style="display:flex;gap:8px;margin-top:8px">
+          <div class="avatar-thumb" id="dress1" title="Dress Pink" data-dress="pink">🎀</div>
+          <div class="avatar-thumb" id="dress2" title="Dress Lilac" data-dress="lilac">🌸</div>
+          <div class="avatar-thumb" id="dress3" title="Dress Mint" data-dress="mint">✨</div>
+        </div>
+      </div>
+
+      <div class="section" style="margin-top:14px">
+        <div class="small">Aturan singkat</div>
+        <ol class="rules">
+          <li>Klik avatar untuk pilih.</li>
+          <li>Pilih tab <strong>Makeup</strong> untuk mulai mewarnai.</li>
+          <li>Pilih alat → klik area pada wajah (contoh: bibir untuk lipstick).</li>
+        </ol>
+      </div>
+
+      <div class="section" style="margin-top:12px">
+        <div class="big-actions">
+          <button class="btn start-anim" id="startBtn">▶ Mulai Game</button>
+          <button class="btn secondary" id="howBtn">❓ Petunjuk</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: stage -->
+    <div class="stage" id="stage" role="main">
+      <div class="stage-top">
+        <div class="stage-title">
+          <div class="title-strong">Makeup Studio</div>
+          <div class="small">Pilih alat, warna, lalu klik avatar</div>
+        </div>
+
+        <div class="stage-actions">
+          <div class="emoji-row">
+            <div class="emoji" id="emojiLove">💖</div>
+            <div class="emoji" id="emojiSpark">✨</div>
+            <div class="emoji" id="emojiKiss">😘</div>
+          </div>
+
+          <div class="control-icons">
+            <button class="tool-btn" id="musicToggle">🎵 Play</button>
+            <button class="tool-btn" id="undoBtn">↺ Undo</button>
+            <button class="tool-btn" id="resetBtn">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-row">
+        <div class="tools-left">
+          <button class="tool-btn active" data-tool="lip" id="toolLip">💄 Lipstick</button>
+          <button class="tool-btn" data-tool="blush" id="toolBlush">🌸 Blush</button>
+          <button class="tool-btn" data-tool="eye" id="toolEye">✨ Eyeshadow</button>
+          <button class="tool-btn" data-tool="hair" id="toolHair">💁 Hair</button>
+        </div>
+
+        <div class="palette-area">
+          <div class="small">Palet</div>
+          <div class="palette" id="palette">
+            <div class="sw" data-color="#FFB7D3" style="background:#FFB7D3"></div>
+            <div class="sw" data-color="#FFCFEF" style="background:#FFCFEF"></div>
+            <div class="sw" data-color="#FFDDEA" style="background:#FFDDEA"></div>
+            <div class="sw" data-color="#F8C3FF" style="background:#F8C3FF"></div>
+            <div class="sw" data-color="#FFC1E3" style="background:#FFC1E3"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="canvas-wrap" aria-hidden="false">
+        <!-- Avatar SVG: parts have ids for easy coloring -->
+        <svg id="avatarSVG" viewBox="0 0 360 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Avatar">
+          <defs>
+            <filter id="blurS" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="6" result="b"/>
+              <feBlend in="SourceGraphic" in2="b" mode="normal"/>
+            </filter>
+          </defs>
+
+          <!-- body / dress -->
+          <path id="dress" d="M60,300 C60,260 80,240 120,240 L240,240 C280,240 300,260 300,300 L300,420 C300,430 80,430 60,420 Z" fill="#FFD7E6" stroke="#ffd0e1"/>
+
+          <!-- hair -->
+          <path id="hair" d="M40,120 C40,60 120,20 180,20 C240,20 320,60 320,120 C320,240 260,300 180,300 C100,300 40,240 40,120Z" fill="#FDE9F2" stroke="#f5cfe0"/>
+
+          <!-- face -->
+          <ellipse id="faceBase" cx="180" cy="190" rx="80" ry="100" fill="#FFEFEF" stroke="#ffdce9"/>
+
+          <!-- eyes -->
+          <g id="eyes">
+            <ellipse id="eyeL" cx="150" cy="180" rx="16" ry="10" fill="#1f1b1c"/>
+            <ellipse id="eyeR" cx="210" cy="180" rx="16" ry="10" fill="#1f1b1c"/>
+            <circle cx="145" cy="176" r="3" fill="#fff"/>
+            <circle cx="205" cy="176" r="3" fill="#fff"/>
+          </g>
+
+          <!-- lips -->
+          <g id="mouthGroup">
+            <path id="upperLip" d="M150,250 C170,238 190,238 210,250 C190,242 170,242 150,250Z" fill="#ffd1df" stroke="#ff92be" stroke-width="0.8"/>
+            <path id="lowerLip" d="M150,250 C170,268 190,268 210,250 C190,260 170,260 150,250Z" fill="#ff99c3" stroke="#ff6fa6" stroke-width="0.8"/>
+          </g>
+
+          <!-- cheeks -->
+          <ellipse id="leftCheek" cx="130" cy="230" rx="20" ry="12" fill="transparent" filter="url(#blurS)" opacity="0.85"/>
+          <ellipse id="rightCheek" cx="230" cy="230" rx="20" ry="12" fill="transparent" filter="url(#blurS)" opacity="0.85"/>
+
+          <!-- stickers -->
+          <g id="stickers"></g>
+        </svg>
+      </div>
+
+      <div class="bottom-row">
+        <div class="small">Tips: pilih alat lalu klik area (contoh: klik bibir untuk lipstick).</div>
+        <div class="actions-right">
+          <button class="btn secondary" id="downloadBtn">⬇ Simpan</button>
+        </div>
       </div>
 
     </div>
-
-    <div class="canvas">
-      <svg id="face" viewBox="0 0 300 400">
-        <ellipse cx="150" cy="200" rx="90" ry="120" fill="#FFEFF4"></ellipse>
-
-        <!-- Bibir -->
-        <path id="lip" d="M110,250 Q150,280 190,250 Q150,265 110,250" 
-              fill="#FFADC6"></path>
-
-        <!-- Pipi -->
-        <circle id="cheekL" cx="110" cy="220" r="18" fill="transparent"></circle>
-        <circle id="cheekR" cx="190" cy="220" r="18" fill="transparent"></circle>
-
-        <!-- Eyeshadow -->
-        <ellipse id="eyeL" cx="120" cy="180" rx="25" ry="10" fill="transparent"></ellipse>
-        <ellipse id="eyeR" cx="180" cy="180" rx="25" ry="10" fill="transparent"></ellipse>
-
-      </svg>
-    </div>
-
   </div>
 
+  <!-- Instructions Modal (hidden) -->
+  <div id="modal" class="modal" style="display:none">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-label="Petunjuk">
+      <div class="modal-header">
+        <div class="modal-title">Cara Main</div>
+        <div class="close" id="closeModal">✕</div>
+      </div>
+      <ol class="modal-list">
+        <li>Pilih avatar di panel kiri.</li>
+        <li>Pilih tab <strong>Makeup</strong> jika ingin mewarnai wajah. Untuk ganti baju, pilih tab <strong>Baju</strong>.</li>
+        <li>Pilih alat (Lipstick, Blush, Eyeshadow, Hair).</li>
+        <li>Pilih warna dari palet lalu <strong>klik</strong> area pada avatar. Lipstick akan bergerak animasi ke bibir saat kamu klik.</li>
+        <li>Gunakan tombol <strong>Undo</strong>, <strong>Reset</strong>, dan <strong>Simpan</strong>.</li>
+      </ol>
+      <div class="modal-actions">
+        <button class="btn" id="okModal">Siap!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- External JS (script.js) -->
   <script src="script.js"></script>
 </body>
 </html>
