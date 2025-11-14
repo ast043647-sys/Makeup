@@ -1,176 +1,313 @@
-
+// Pastel Pink Mobile Makeup Game - shoulder-up avatar
 (() => {
-  // DOM references
-  const menu = document.getElementById('menu');
-  const startBtn = document.getElementById('startBtn');
-  const screens = {instructions: document.getElementById('instructions'), makeup: document.getElementById('makeup'), wardrobe: document.getElementById('wardrobe')};
-  const avatar = document.getElementById('avatar');
-  const makeupItems = document.getElementById('makeupItems');
-  const hairOptions = document.getElementById('hairOptions');
-  const clothesList = document.getElementById('clothesList');
+  // --- Elements ---
+  const screens = {
+    menu: document.getElementById('menu'),
+    instructions: document.getElementById('instructions'),
+    makeup: document.getElementById('makeup'),
+    wardrobe: document.getElementById('wardrobe')
+  };
+  const startBtn = document.getElementById('startGame');
+  const menuBtns = document.querySelectorAll('.menu-btn');
+  const backBtns = document.querySelectorAll('.back-btn');
   const emojiContainer = document.getElementById('emojiContainer');
-  const snapshotCanvas = document.getElementById('snapshotCanvas');
 
-  // State
-  const state = {applied: {blush: null, eyeshadow: null, lipstick: null}, hair: 'none', clothes: 'none'};
+  // Avatar layers
+  const avatarBase = document.getElementById('avatarBase');
+  const avatarMakeup = document.getElementById('avatarMakeup');
+  const avatarHair = document.getElementById('avatarHair');
+  const avatarCloth = document.getElementById('avatarCloth');
+  const avatarWrap = document.getElementById('avatarWrap');
 
-  // Utility: show floating emoji when buttons pressed
-  function showEmoji(x,y){
-    const el = document.createElement('div'); el.className='emoji'; el.textContent='🎀';
-    el.style.left = (x-12)+'px'; el.style.top = (y-12)+'px';
+  // containers for item lists
+  const makeupItems = document.getElementById('makeupItems');
+  const hairItems = document.getElementById('hairItems');
+  const accessItems = document.getElementById('accessItems');
+  const clothesItems = document.getElementById('clothesItems');
+
+  const takePhotoBtn = document.getElementById('takePhoto');
+  const resetBtn = document.getElementById('resetBtn');
+  const toWardrobe = document.getElementById('toWardrobe');
+
+  // snapshot canvas
+  const snapshot = document.getElementById('snapshot');
+
+  // state
+  const state = {
+    baseSrc: '',      // initial blank base (we set default)
+    makeup: null,
+    hair: null,
+    cloth: null,
+    accessory: null,
+    audioStarted: false
+  };
+
+  // --- Assets (small set embedded via imgur links / data URIs) ---
+  // Base shoulder-up avatar (neutral)
+  const ASSETS = {
+    base: 'https://i.imgur.com/7Qp8h5Q.png', // neutral shoulder-up base (transparent bg)
+    makeupOptions: [
+      {id:'lip-rose', src:'https://i.imgur.com/ynGk0Lh.png', label:'Lip Rose'},
+      {id:'blush-pink', src:'https://i.imgur.com/9lPBgru.png', label:'Blush Pink'},
+      {id:'shadow-lilac', src:'https://i.imgur.com/YvQ6s5H.png', label:'Eyeshadow'}
+    ],
+    hairOptions: [
+      {id:'hair-bun', src:'https://i.imgur.com/C0Y5J1p.png', label:'Bun'},
+      {id:'hair-long', src:'https://i.imgur.com/7i6mO9T.png', label:'Long'},
+      {id:'hair-short', src:'https://i.imgur.com/r1a6m2N.png', label:'Short'}
+    ],
+    accessoryOptions: [
+      {id:'bow', src:'https://i.imgur.com/w9k0aYb.png', label:'Bow'},
+      {id:'earring', src:'https://i.imgur.com/JkL3ZgV.png', label:'Earring'}
+    ],
+    clothesOptions: [
+      {id:'dress-rose', src:'https://i.imgur.com/yjKtQXM.png', label:'Dress Rose'},
+      {id:'tee-pink', src:'https://i.imgur.com/AE1KX2S.png', label:'T-Shirt Pink'},
+      {id:'sweater', src:'https://i.imgur.com/0xwX1sR.png', label:'Cozy Sweater'}
+    ]
+  };
+
+  // Initialize defaults
+  function initDefaults(){
+    avatarBase.src = ASSETS.base;
+    avatarMakeup.src = '';
+    avatarHair.src = '';
+    avatarCloth.src = '';
+    state.baseSrc = ASSETS.base;
+  }
+
+  // Render items into DOM
+  function buildItemList(container, items, onClick){
+    container.innerHTML = '';
+    items.forEach(it => {
+      const div = document.createElement('div');
+      div.className = (container === clothesItems ? 'cloth-item' : 'item');
+      const img = document.createElement('img');
+      img.src = it.src;
+      img.alt = it.label || '';
+      img.draggable = false;
+      // support tap
+      img.addEventListener('click', (ev) => {
+        onClick(it);
+        spawnEmoji(ev);
+      });
+      // support pointer drag -> drop onto avatar
+      img.addEventListener('pointerdown', startDragItem);
+      div.appendChild(img);
+      container.appendChild(div);
+    });
+  }
+
+  // Drag implementation (pointer events)
+  let dragging = null;
+  function startDragItem(e){
+    const img = e.currentTarget;
+    // clone visual
+    dragging = img.cloneNode(true);
+    dragging.style.position = 'fixed';
+    dragging.style.left = (e.clientX - img.width/2) + 'px';
+    dragging.style.top = (e.clientY - img.height/2) + 'px';
+    dragging.style.zIndex = 9999;
+    dragging.style.pointerEvents = 'none';
+    document.body.appendChild(dragging);
+    img.setPointerCapture(e.pointerId);
+    function move(e2){ if(!dragging) return; dragging.style.left = (e2.clientX - img.width/2) + 'px'; dragging.style.top = (e2.clientY - img.height/2) + 'px'; }
+    function up(e2){
+      try{ img.releasePointerCapture(e.pointerId); }catch(err){}
+      document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerup', up);
+      if(!dragging) return;
+      // check if dropped on avatar
+      const avatarRect = avatarWrap.getBoundingClientRect();
+      if(e2.clientX >= avatarRect.left && e2.clientX <= avatarRect.right && e2.clientY >= avatarRect.top && e2.clientY <= avatarRect.bottom){
+        // determine item type by looking at container
+        const parent = img.parentElement.parentElement;
+        let src = img.src;
+        if(parent === makeupItems || parent.classList.contains('items') && parent.previousElementSibling && parent.previousElementSibling.textContent === 'Makeup'){
+          applyMakeupSrc(src);
+        } else if(parent === hairItems){
+          applyHairSrc(src);
+        } else if(parent === accessItems){
+          applyAccessorySrc(src);
+        } else if(parent === clothesItems){
+          applyClothSrc(src);
+        }
+      }
+      dragging.remove();
+      dragging = null;
+    }
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', up);
+  }
+
+  // Emoji spawn at click location
+  function spawnEmoji(e){
+    const el = document.createElement('div');
+    el.className = 'emoji';
+    const emojis = ['🎀','🌸','💗','✨','🩷'];
+    el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    const x = (e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || window.innerWidth/2) - 16;
+    const y = (e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY) || window.innerHeight/2) - 16;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
     emojiContainer.appendChild(el);
-    setTimeout(()=>el.remove(),1600);
+    setTimeout(()=>el.remove(),1500);
   }
 
-  // Attach emoji to all interactive buttons
-  document.addEventListener('click', e => {
-    const rect = document.documentElement.getBoundingClientRect();
-    const x = e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || window.innerWidth/2;
-    const y = e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY) || window.innerHeight/2;
-    if(e.target.tagName === 'BUTTON' || e.target.classList.contains('item') || e.target.classList.contains('option')){
-      showEmoji(x,y);
-    }
-  });
+  // Apply functions
+  function applyMakeupSrc(src){
+    avatarMakeup.src = src;
+    state.makeup = src;
+  }
+  function applyHairSrc(src){
+    avatarHair.src = src;
+    state.hair = src;
+  }
+  function applyAccessorySrc(src){
+    // we use makeup layer for accessory overlay if small
+    avatarMakeup.src = src;
+    state.accessory = src;
+  }
+  function applyClothSrc(src){
+    avatarCloth.src = src;
+    state.cloth = src;
+  }
 
-  // Generate makeup items
-  const sampleMakeup = [
-    {id:'blush-pink', type:'blush', label:'Blush Pink', style:{background:'radial-gradient(circle,#ffb3d0,#ff7598)'}},
-    {id:'shadow-lilac', type:'eyeshadow', label:'Eyeshadow Lilac', style:{background:'linear-gradient(90deg,#f4d5ff,#eec4f7)'}},
-    {id:'lip-rose', type:'lipstick', label:'Lip Rose', style:{background:'linear-gradient(90deg,#ff8bb0,#ff5c95)'}},
-    {id:'liner-deep', type:'eyeliner', label:'Eyeliner', style:{background:'linear-gradient(90deg,#6b4460,#412233)'}}
-  ];
+  // Navigation
+  function showScreen(id){
+    Object.keys(screens).forEach(k => screens[k].classList.remove('active'));
+    if(screens[id]) screens[id].classList.add('active');
+  }
 
-  sampleMakeup.forEach(item => {
-    const el = document.createElement('div'); el.className='item'; el.dataset.type = item.type; el.id = item.id; el.title = item.label; Object.assign(el.style,item.style);
-    el.textContent = '✦';
-    makeupItems.appendChild(el);
+  // Photo -> compose layers on canvas and download
+  function downloadImage(){
+    // set canvas size proportional to avatarWrap
+    const wrapRect = avatarWrap.getBoundingClientRect();
+    const scale = 2; // higher resolution
+    snapshot.width = Math.round(wrapRect.width * scale);
+    snapshot.height = Math.round(wrapRect.height * scale);
+    const ctx = snapshot.getContext('2d');
+    ctx.clearRect(0,0,snapshot.width,snapshot.height);
+    // draw background soft
+    ctx.fillStyle = '#fff6fb';
+    ctx.fillRect(0,0,snapshot.width,snapshot.height);
 
-    // Tap to apply
-    el.addEventListener('click', () => applyMakeup(item));
+    // helper to draw element center-aligned
+    const drawImg = (imgEl) => {
+      if(!imgEl || !imgEl.src) return Promise.resolve();
+      return new Promise((res) => {
+        const im = new Image();
+        im.crossOrigin = 'anonymous';
+        im.onload = () => {
+          // compute size to fit within canvas width
+          const targetW = snapshot.width * 0.86;
+          const x = (snapshot.width - targetW) / 2;
+          // position: base around top+some
+          let y = snapshot.height * 0.08;
+          if(imgEl.classList.contains('cloth-layer')) y = snapshot.height * 0.48;
+          ctx.drawImage(im, x, y, targetW, targetW * (im.height/im.width));
+          res();
+        };
+        im.onerror = () => res();
+        im.src = imgEl.src;
+      });
+    };
 
-    // Drag support
-    let dragging = false, startX=0, startY=0;
-    el.addEventListener('pointerdown', e => { dragging = true; el.setPointerCapture(e.pointerId); startX = e.clientX; startY = e.clientY; el.style.transition='none'; el.style.position='fixed'; el.style.zIndex=9999; moveAt(e); });
-    function moveAt(e){ el.style.left = (e.clientX - 28) + 'px'; el.style.top = (e.clientY - 28) + 'px'; }
-    el.addEventListener('pointermove', e => { if(!dragging) return; moveAt(e); });
-    el.addEventListener('pointerup', e => { if(!dragging) return; dragging=false; el.releasePointerCapture(e.pointerId); el.style.position=''; el.style.zIndex=''; el.style.left=''; el.style.top=''; el.style.transition=''; // detect drop onto avatar
-      const avatarRect = avatar.getBoundingClientRect();
-      if(e.clientX > avatarRect.left && e.clientX < avatarRect.right && e.clientY > avatarRect.top && e.clientY < avatarRect.bottom){ applyMakeup(item); }
+    // draw order: hair (top), base, makeup/accessory, cloth (bottom)
+    // but our layers: hair (top), base (middle), makeup (over face), cloth (bottom)
+    // draw base first (shoulders)
+    Promise.resolve()
+      .then(()=>drawImg(avatarBase))
+      .then(()=>drawImg(avatarMakeup))
+      .then(()=>drawImg(avatarHair))
+      .then(()=>drawImg(avatarCloth))
+      .then(()=>{
+        // create download link
+        snapshot.toBlob(blob => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'avatar-pastel.png';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+        }, 'image/png');
+      });
+  }
+
+  // Audio: soft ambient - start upon first user gesture
+  let audioCtx, masterGain, osc1;
+  function initAudio(){
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = audioCtx.createGain(); masterGain.gain.value = 0.03; masterGain.connect(audioCtx.destination);
+      osc1 = audioCtx.createOscillator(); osc1.type='sine'; osc1.frequency.value = 220;
+      const lfo = audioCtx.createOscillator(); lfo.type='sine'; lfo.frequency.value = 0.25;
+      const lfoGain = audioCtx.createGain(); lfoGain.gain.value = 60;
+      lfo.connect(lfoGain); lfoGain.connect(osc1.frequency);
+      osc1.connect(masterGain); osc1.start(); lfo.start();
+    } catch(e){ /* not supported */ }
+  }
+  function ensureAudioStarted(){
+    if(audioCtx) return;
+    initAudio();
+  }
+
+  // Event wiring
+  function wireEvents(){
+    // menu buttons open screens
+    menuBtns.forEach(b => b.addEventListener('click', (e) => {
+      const target = b.dataset.open;
+      showScreen(target);
+      spawnEmoji(e);
+      ensureAudioStarted();
+    }));
+    startBtn.addEventListener('click', (e) => { showScreen('makeup'); spawnEmoji(e); ensureAudioStarted(); });
+    backBtns.forEach(b => b.addEventListener('click', (e) => { showScreen('menu'); spawnEmoji(e); }));
+
+    // reset
+    resetBtn.addEventListener('click', (e) => {
+      initDefaults();
+      spawnEmoji(e);
     });
-  });
 
-  function applyMakeup(item){
-    state.applied[item.type] = item.id;
-    // Visual cues: tint certain parts
-    if(item.type === 'blush'){
-      const blushEl = avatar.querySelector('.face'); blushEl.style.boxShadow = 'inset 0 -8px 40px rgba(255,120,170,0.12)';
-    }
-    if(item.type === 'eyeshadow'){
-      avatar.querySelector('.eye.left').style.boxShadow = '0 0 0 10px rgba(235,180,240,0.28)';
-      avatar.querySelector('.eye.right').style.boxShadow = '0 0 0 10px rgba(235,180,240,0.28)';
-    }
-    if(item.type === 'lipstick'){
-      avatar.querySelector('.lips').style.background = 'linear-gradient(#ff7aa5,#ff4f87)';
-    }
-    if(item.type === 'eyeliner'){
-      avatar.querySelectorAll('.eye').forEach(el => el.style.transform='scaleX(1.06) translateY(-1px)');
-    }
-  }
+    // to wardrobe
+    toWardrobe.addEventListener('click', (e) => { showScreen('wardrobe'); spawnEmoji(e); });
 
-  // Hair options
-  const hairList = [
-    {id:'hair-short', name:'Pendek', style:'linear-gradient(90deg,#ffd0e8,#ffc1f0)'},
-    {id:'hair-long', name:'Panjang', style:'linear-gradient(90deg,#ffd6e0,#ffb6d8)'},
-    {id:'hair-bun', name:'Bun', style:'linear-gradient(90deg,#ffdfef,#ffcbe7)'},
-  ];
-  hairList.forEach(h => {
-    const b = document.createElement('button'); b.className='option'; b.textContent = h.name; b.dataset.hair = h.id; b.style.background = h.style; hairOptions.appendChild(b);
-    b.addEventListener('click', ()=>{
-      state.hair = h.id; avatar.querySelector('.hair').style.background = h.style;
+    // photo
+    takePhotoBtn.addEventListener('click', (e) => {
+      downloadImage();
+      spawnEmoji(e);
     });
-  });
 
-  // Clothes
-  const clothes = [
-    {id:'dress-rose', name:'Gaun Rose', style:'linear-gradient(180deg,#fff1f6,#ffdce9)'},
-    {id:'tee-pink', name:'T-Shirt Pink', style:'linear-gradient(180deg,#fff6f9,#ffeef5)'},
-    {id:'sweater', name:'Sweater Cozy', style:'linear-gradient(180deg,#ffe9f2,#ffd8ea)'}
-  ];
-  clothes.forEach(c =>{
-    const div = document.createElement('div'); div.className='cloth'; div.dataset.clothes = c.id; div.style.background = c.style; div.textContent = c.name; clothesList.appendChild(div);
-    div.addEventListener('click', ()=>{
-      state.clothes = c.id; avatar.querySelector('.clothes').style.background = c.style;
-    });
-  });
-
-  // Simple navigation
-  document.querySelectorAll('[data-screen]').forEach(btn => btn.addEventListener('click', e => openScreen(e.target.dataset.screen)));
-  document.querySelectorAll('.back').forEach(b => b.addEventListener('click', ()=>{ openScreen('menu'); }));
-  document.getElementById('toWardrobe').addEventListener('click', ()=> openScreen('wardrobe'));
-
-  function openScreen(name){
-    // hide all
-    menu.classList.toggle('hidden', name !== 'menu');
-    Object.keys(screens).forEach(k=>screens[k].classList.toggle('hidden', k !== name));
+    // global click to start audio on first touch (mobile)
+    document.addEventListener('pointerdown', function onceStart(){
+      if(!state.audioStarted){
+        ensureAudioStarted();
+        state.audioStarted = true;
+      }
+    }, {once:true});
   }
 
-  // Start button jumps to makeup
-  startBtn.addEventListener('click', ()=> openScreen('makeup'));
-
-  // Reset makeup
-  document.getElementById('resetMakeup').addEventListener('click', ()=>{
-    avatar.querySelector('.face').style.boxShadow='inset 0 -8px 20px rgba(255,150,190,0.08)';
-    avatar.querySelectorAll('.eye').forEach(e=>{e.style.boxShadow=''; e.style.transform='';});
-    avatar.querySelector('.lips').style.background='linear-gradient(#ff9ac3,#ff6fae)';
-    state.applied = {blush:null,eyeshadow:null,lipstick:null};
-  });
-
-  // Photo capture — render avatar to canvas
-  document.getElementById('takePhoto').addEventListener('click', ()=>{
-    const rect = avatar.getBoundingClientRect();
-    snapshotCanvas.width = rect.width; snapshotCanvas.height = rect.height;
-    const ctx = snapshotCanvas.getContext('2d');
-    // Paint simple snapshot (recreate look using simple fills)
-    // background
-    ctx.fillStyle = '#fff'; ctx.fillRect(0,0,snapshotCanvas.width,snapshotCanvas.height);
-    // hair
-    ctx.fillStyle = getComputedStyle(avatar.querySelector('.hair')).background;
-    ctx.fillRect(0,0,snapshotCanvas.width,120);
-    // face circle
-    ctx.beginPath(); ctx.fillStyle = '#fff0f6'; ctx.arc(snapshotCanvas.width/2,130,100,0,Math.PI*2); ctx.fill();
-    // eyes
-    ctx.fillStyle='#5a3a5a'; ctx.beginPath(); ctx.arc(snapshotCanvas.width/2 - 46,120,10,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(snapshotCanvas.width/2 + 46,120,10,0,Math.PI*2); ctx.fill();
-    // lips
-    ctx.fillStyle = '#ff6fae'; ctx.beginPath(); ctx.ellipse(snapshotCanvas.width/2,200,35,18,0,0,Math.PI*2); ctx.fill();
-    // clothes
-    ctx.fillStyle = getComputedStyle(avatar.querySelector('.clothes')).background; ctx.fillRect(0,snapshotCanvas.height-120,snapshotCanvas.width,120);
-
-    // show image in new tab
-    const data = snapshotCanvas.toDataURL('image/png');
-    const w = window.open('about:blank','_blank');
-    if(w){ w.document.write(`<img src="${data}" alt="avatar" style="max-width:100%">`); }
-    // play shutter + show emoji
-    playShutter();
-  });
-
-  // Very small synthesized soft background loop using WebAudio
-  const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  if(AudioCtx){
-    const ctx = new AudioCtx();
-    const gain = ctx.createGain(); gain.gain.value = 0.05; gain.connect(ctx.destination);
-    const osc = ctx.createOscillator(); osc.type='sine'; osc.frequency.value = 220; const lfo = ctx.createOscillator(); lfo.type='sine'; lfo.frequency.value=0.2;
-    const lfoGain = ctx.createGain(); lfoGain.gain.value = 20; lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
-    osc.connect(gain); osc.start(); lfo.start();
-    // start on first user gesture
-    function startAudio(){ if(ctx.state!=='running') ctx.resume(); document.removeEventListener('click', startAudio); }
-    document.addEventListener('click', startAudio);
+  // build UI
+  function buildUI(){
+    buildItemList(makeupItems, ASSETS.makeupOptions, (it)=>applyMakeupSrc(it.src));
+    buildItemList(hairItems, ASSETS.hairOptions, (it)=>applyHairSrc(it.src));
+    buildItemList(accessItems, ASSETS.accessoryOptions, (it)=>applyAccessorySrc(it.src));
+    buildItemList(clothesItems, ASSETS.clothesOptions, (it)=>applyClothSrc(it.src));
   }
 
-  function playShutter(){
-    if(!window.AudioContext) return; const ctx = new (window.AudioContext||window.webkitAudioContext)(); const o = ctx.createOscillator(); const g = ctx.createGain(); o.type='square'; o.frequency.value=800; g.gain.value=0.1; o.connect(g); g.connect(ctx.destination); o.start(); g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.4); setTimeout(()=>o.stop(),500);
+  // Initialize app
+  function init(){
+    initDefaults();
+    buildUI();
+    wireEvents();
+    // show menu by default
+    showScreen('menu');
   }
 
-  // Small helpful tip: support deep linking
-  if(location.hash === '#makeup') openScreen('makeup');
+  // Kickoff
+  init();
+
 })();
-const a = document.createElement('a'); a.href = url; a.download = "avatar_makeup.svg"; a.click(); });
