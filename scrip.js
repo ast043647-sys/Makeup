@@ -1,63 +1,176 @@
-// SCRIPT.JS – Mini Makeup & Dress-Up Game
 
-console.log("script loaded");
+(() => {
+  // DOM references
+  const menu = document.getElementById('menu');
+  const startBtn = document.getElementById('startBtn');
+  const screens = {instructions: document.getElementById('instructions'), makeup: document.getElementById('makeup'), wardrobe: document.getElementById('wardrobe')};
+  const avatar = document.getElementById('avatar');
+  const makeupItems = document.getElementById('makeupItems');
+  const hairOptions = document.getElementById('hairOptions');
+  const clothesList = document.getElementById('clothesList');
+  const emojiContainer = document.getElementById('emojiContainer');
+  const snapshotCanvas = document.getElementById('snapshotCanvas');
 
-// ELEMENTS const tabs = document.querySelectorAll('.tab'); const sectionDress = document.getElementById('sectionDress'); const sectionAvatar = document.getElementById('sectionAvatar'); const startBtn = document.getElementById('startBtn'); const howBtn = document.getElementById('howBtn'); const modal = document.getElementById('modal'); const closeModal = document.getElementById('closeModal'); const okModal = document.getElementById('okModal'); const avatarSVG = document.getElementById('avatarSVG'); const palette = document.getElementById('palette'); const toolBtns = document.querySelectorAll('.tool-btn');
+  // State
+  const state = {applied: {blush: null, eyeshadow: null, lipstick: null}, hair: 'none', clothes: 'none'};
 
-let currentTool = "lip"; let currentColor = "#FFB7D3";
+  // Utility: show floating emoji when buttons pressed
+  function showEmoji(x,y){
+    const el = document.createElement('div'); el.className='emoji'; el.textContent='🎀';
+    el.style.left = (x-12)+'px'; el.style.top = (y-12)+'px';
+    emojiContainer.appendChild(el);
+    setTimeout(()=>el.remove(),1600);
+  }
 
-// TOOL CHANGE
+  // Attach emoji to all interactive buttons
+  document.addEventListener('click', e => {
+    const rect = document.documentElement.getBoundingClientRect();
+    const x = e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || window.innerWidth/2;
+    const y = e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY) || window.innerHeight/2;
+    if(e.target.tagName === 'BUTTON' || e.target.classList.contains('item') || e.target.classList.contains('option')){
+      showEmoji(x,y);
+    }
+  });
 
-toolBtns.forEach(btn => { btn.addEventListener('click', () => { toolBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active'); currentTool = btn.dataset.tool; }); });
+  // Generate makeup items
+  const sampleMakeup = [
+    {id:'blush-pink', type:'blush', label:'Blush Pink', style:{background:'radial-gradient(circle,#ffb3d0,#ff7598)'}},
+    {id:'shadow-lilac', type:'eyeshadow', label:'Eyeshadow Lilac', style:{background:'linear-gradient(90deg,#f4d5ff,#eec4f7)'}},
+    {id:'lip-rose', type:'lipstick', label:'Lip Rose', style:{background:'linear-gradient(90deg,#ff8bb0,#ff5c95)'}},
+    {id:'liner-deep', type:'eyeliner', label:'Eyeliner', style:{background:'linear-gradient(90deg,#6b4460,#412233)'}}
+  ];
 
-// PALETTE COLOR PICK palette.addEventListener('click', (e) => { if (e.target.classList.contains('sw')) { currentColor = e.target.dataset.color; } });
+  sampleMakeup.forEach(item => {
+    const el = document.createElement('div'); el.className='item'; el.dataset.type = item.type; el.id = item.id; el.title = item.label; Object.assign(el.style,item.style);
+    el.textContent = '✦';
+    makeupItems.appendChild(el);
 
-// APPLY ON AVATAR avatarSVG.addEventListener('click', (e) => { const id = e.target.id;
+    // Tap to apply
+    el.addEventListener('click', () => applyMakeup(item));
 
-if (currentTool === "lip" && (id === "upperLip" || id === "lowerLip")) { e.target.setAttribute('fill', currentColor); animateLipstick(); }
+    // Drag support
+    let dragging = false, startX=0, startY=0;
+    el.addEventListener('pointerdown', e => { dragging = true; el.setPointerCapture(e.pointerId); startX = e.clientX; startY = e.clientY; el.style.transition='none'; el.style.position='fixed'; el.style.zIndex=9999; moveAt(e); });
+    function moveAt(e){ el.style.left = (e.clientX - 28) + 'px'; el.style.top = (e.clientY - 28) + 'px'; }
+    el.addEventListener('pointermove', e => { if(!dragging) return; moveAt(e); });
+    el.addEventListener('pointerup', e => { if(!dragging) return; dragging=false; el.releasePointerCapture(e.pointerId); el.style.position=''; el.style.zIndex=''; el.style.left=''; el.style.top=''; el.style.transition=''; // detect drop onto avatar
+      const avatarRect = avatar.getBoundingClientRect();
+      if(e.clientX > avatarRect.left && e.clientX < avatarRect.right && e.clientY > avatarRect.top && e.clientY < avatarRect.bottom){ applyMakeup(item); }
+    });
+  });
 
-if (currentTool === "blush" && (id === "leftCheek" || id === "rightCheek")) { e.target.setAttribute('fill', currentColor); }
+  function applyMakeup(item){
+    state.applied[item.type] = item.id;
+    // Visual cues: tint certain parts
+    if(item.type === 'blush'){
+      const blushEl = avatar.querySelector('.face'); blushEl.style.boxShadow = 'inset 0 -8px 40px rgba(255,120,170,0.12)';
+    }
+    if(item.type === 'eyeshadow'){
+      avatar.querySelector('.eye.left').style.boxShadow = '0 0 0 10px rgba(235,180,240,0.28)';
+      avatar.querySelector('.eye.right').style.boxShadow = '0 0 0 10px rgba(235,180,240,0.28)';
+    }
+    if(item.type === 'lipstick'){
+      avatar.querySelector('.lips').style.background = 'linear-gradient(#ff7aa5,#ff4f87)';
+    }
+    if(item.type === 'eyeliner'){
+      avatar.querySelectorAll('.eye').forEach(el => el.style.transform='scaleX(1.06) translateY(-1px)');
+    }
+  }
 
-if (currentTool === "eye" && (id === "eyeL" || id === "eyeR")) { e.target.setAttribute('fill', currentColor); }
+  // Hair options
+  const hairList = [
+    {id:'hair-short', name:'Pendek', style:'linear-gradient(90deg,#ffd0e8,#ffc1f0)'},
+    {id:'hair-long', name:'Panjang', style:'linear-gradient(90deg,#ffd6e0,#ffb6d8)'},
+    {id:'hair-bun', name:'Bun', style:'linear-gradient(90deg,#ffdfef,#ffcbe7)'},
+  ];
+  hairList.forEach(h => {
+    const b = document.createElement('button'); b.className='option'; b.textContent = h.name; b.dataset.hair = h.id; b.style.background = h.style; hairOptions.appendChild(b);
+    b.addEventListener('click', ()=>{
+      state.hair = h.id; avatar.querySelector('.hair').style.background = h.style;
+    });
+  });
 
-if (currentTool === "hair" && id === "hair") { e.target.setAttribute('fill', currentColor); } });
+  // Clothes
+  const clothes = [
+    {id:'dress-rose', name:'Gaun Rose', style:'linear-gradient(180deg,#fff1f6,#ffdce9)'},
+    {id:'tee-pink', name:'T-Shirt Pink', style:'linear-gradient(180deg,#fff6f9,#ffeef5)'},
+    {id:'sweater', name:'Sweater Cozy', style:'linear-gradient(180deg,#ffe9f2,#ffd8ea)'}
+  ];
+  clothes.forEach(c =>{
+    const div = document.createElement('div'); div.className='cloth'; div.dataset.clothes = c.id; div.style.background = c.style; div.textContent = c.name; clothesList.appendChild(div);
+    div.addEventListener('click', ()=>{
+      state.clothes = c.id; avatar.querySelector('.clothes').style.background = c.style;
+    });
+  });
 
-// LIPSTICK ANIMATION function animateLipstick() { const svg = document.createElementNS("http://www.w3.org/2000/svg", "text"); svg.textContent = "💄"; svg.setAttribute('x', 160); svg.setAttribute('y', 200); svg.setAttribute('font-size', '30'); svg.style.opacity = 0; svg.style.transition = "0.6s"; avatarSVG.appendChild(svg);
+  // Simple navigation
+  document.querySelectorAll('[data-screen]').forEach(btn => btn.addEventListener('click', e => openScreen(e.target.dataset.screen)));
+  document.querySelectorAll('.back').forEach(b => b.addEventListener('click', ()=>{ openScreen('menu'); }));
+  document.getElementById('toWardrobe').addEventListener('click', ()=> openScreen('wardrobe'));
 
-setTimeout(() => { svg.style.opacity = 1; svg.setAttribute('x', 180); svg.setAttribute('y', 250); }, 10);
+  function openScreen(name){
+    // hide all
+    menu.classList.toggle('hidden', name !== 'menu');
+    Object.keys(screens).forEach(k=>screens[k].classList.toggle('hidden', k !== name));
+  }
 
-setTimeout(() => { svg.remove(); }, 700); }
+  // Start button jumps to makeup
+  startBtn.addEventListener('click', ()=> openScreen('makeup'));
 
-// TABS (BAJU / MAKEUP) tabs.forEach(tab => { tab.addEventListener('click', () => { tabs.forEach(t => t.classList.remove('active')); tab.classList.add('active');
+  // Reset makeup
+  document.getElementById('resetMakeup').addEventListener('click', ()=>{
+    avatar.querySelector('.face').style.boxShadow='inset 0 -8px 20px rgba(255,150,190,0.08)';
+    avatar.querySelectorAll('.eye').forEach(e=>{e.style.boxShadow=''; e.style.transform='';});
+    avatar.querySelector('.lips').style.background='linear-gradient(#ff9ac3,#ff6fae)';
+    state.applied = {blush:null,eyeshadow:null,lipstick:null};
+  });
 
-if (tab.id === "tabDress") {
-  sectionDress.style.display = "block";
-} else {
-  sectionDress.style.display = "none";
-}
+  // Photo capture — render avatar to canvas
+  document.getElementById('takePhoto').addEventListener('click', ()=>{
+    const rect = avatar.getBoundingClientRect();
+    snapshotCanvas.width = rect.width; snapshotCanvas.height = rect.height;
+    const ctx = snapshotCanvas.getContext('2d');
+    // Paint simple snapshot (recreate look using simple fills)
+    // background
+    ctx.fillStyle = '#fff'; ctx.fillRect(0,0,snapshotCanvas.width,snapshotCanvas.height);
+    // hair
+    ctx.fillStyle = getComputedStyle(avatar.querySelector('.hair')).background;
+    ctx.fillRect(0,0,snapshotCanvas.width,120);
+    // face circle
+    ctx.beginPath(); ctx.fillStyle = '#fff0f6'; ctx.arc(snapshotCanvas.width/2,130,100,0,Math.PI*2); ctx.fill();
+    // eyes
+    ctx.fillStyle='#5a3a5a'; ctx.beginPath(); ctx.arc(snapshotCanvas.width/2 - 46,120,10,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(snapshotCanvas.width/2 + 46,120,10,0,Math.PI*2); ctx.fill();
+    // lips
+    ctx.fillStyle = '#ff6fae'; ctx.beginPath(); ctx.ellipse(snapshotCanvas.width/2,200,35,18,0,0,Math.PI*2); ctx.fill();
+    // clothes
+    ctx.fillStyle = getComputedStyle(avatar.querySelector('.clothes')).background; ctx.fillRect(0,snapshotCanvas.height-120,snapshotCanvas.width,120);
 
-}); });
+    // show image in new tab
+    const data = snapshotCanvas.toDataURL('image/png');
+    const w = window.open('about:blank','_blank');
+    if(w){ w.document.write(`<img src="${data}" alt="avatar" style="max-width:100%">`); }
+    // play shutter + show emoji
+    playShutter();
+  });
 
-// AVATAR PICK const thumbs = document.querySelectorAll('.avatar-thumb'); thumbs.forEach(t => { t.addEventListener('click', () => { thumbs.forEach(a => a.classList.remove('selected')); t.classList.add('selected'); }); });
+  // Very small synthesized soft background loop using WebAudio
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  if(AudioCtx){
+    const ctx = new AudioCtx();
+    const gain = ctx.createGain(); gain.gain.value = 0.05; gain.connect(ctx.destination);
+    const osc = ctx.createOscillator(); osc.type='sine'; osc.frequency.value = 220; const lfo = ctx.createOscillator(); lfo.type='sine'; lfo.frequency.value=0.2;
+    const lfoGain = ctx.createGain(); lfoGain.gain.value = 20; lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
+    osc.connect(gain); osc.start(); lfo.start();
+    // start on first user gesture
+    function startAudio(){ if(ctx.state!=='running') ctx.resume(); document.removeEventListener('click', startAudio); }
+    document.addEventListener('click', startAudio);
+  }
 
-// DRESS PICK document.querySelectorAll('[data-dress]').forEach(dress => { dress.addEventListener('click', () => { const color = dress.dataset.dress;
+  function playShutter(){
+    if(!window.AudioContext) return; const ctx = new (window.AudioContext||window.webkitAudioContext)(); const o = ctx.createOscillator(); const g = ctx.createGain(); o.type='square'; o.frequency.value=800; g.gain.value=0.1; o.connect(g); g.connect(ctx.destination); o.start(); g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.4); setTimeout(()=>o.stop(),500);
+  }
 
-if (color === "pink") document.getElementById('dress').setAttribute('fill', '#FFD7E6');
-if (color === "lilac") document.getElementById('dress').setAttribute('fill', '#EBC9FF');
-if (color === "mint") document.getElementById('dress').setAttribute('fill', '#C3FFE8');
-
-}); });
-
-// MODAL howBtn.addEventListener('click', () => { modal.style.display = "flex"; }); closeModal.addEventListener('click', () => { modal.style.display = "none"; }); okModal.addEventListener('click', () => { modal.style.display = "none"; });
-
-// MUSIC TOGGLE const audio = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_5d9d1b5bea.mp3"); audio.loop = true;
-
-document.getElementById('musicToggle').addEventListener('click', () => { if (audio.paused) { audio.play(); musicToggle.textContent = "🔇 Pause"; } else { audio.pause(); musicToggle.textContent = "🎵 Play"; } });
-
-// RESET document.getElementById('resetBtn').addEventListener('click', () => { document.getElementById('upperLip').setAttribute('fill', '#ffd1df'); document.getElementById('lowerLip').setAttribute('fill', '#ff99c3'); document.getElementById('leftCheek').setAttribute('fill', 'transparent'); document.getElementById('rightCheek').setAttribute('fill', 'transparent'); document.getElementById('hair').setAttribute('fill', '#FDE9F2'); });
-
-// UNDO (simple) document.getElementById('undoBtn').addEventListener('click', () => { alert("Undo sederhana belum dibuat secara penuh"); });
-
-// DOWNLOAD AVATAR document.getElementById('downloadBtn').addEventListener('click', () => { const svg = document.getElementById('avatarSVG'); const svgData = new XMLSerializer().serializeToString(svg); const blob = new Blob([svgData], { type: "image/svg+xml" }); const url = URL.createObjectURL(blob);
-
+  // Small helpful tip: support deep linking
+  if(location.hash === '#makeup') openScreen('makeup');
+})();
 const a = document.createElement('a'); a.href = url; a.download = "avatar_makeup.svg"; a.click(); });
