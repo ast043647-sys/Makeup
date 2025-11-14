@@ -1,56 +1,64 @@
-
 :root{
-  --pink-100:#ffeef6;
-  --pink-200:#ffd8ec;
-  --pink-300:#ffc2e1;
-  --accent:#ff74b1;
-  --muted:#f6f0f4;
-  --text:#332233;
-  --card:#fff6f9;
+  --bg1:#fff0f6;
+  --bg2:#ffe6f2;
+  --accent:#ff79b0;
+  --muted:#f8eef2;
+  --text:#3a2b36;
+  --card:#ffffffaa;
 }
-*{box-sizing:border-box}
-html,body,#app{height:100%}
-body{
-  margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto; background:linear-gradient(180deg,var(--pink-100),var(--pink-200));color:var(--text);
+
+/* Reset & layout */
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+html,body,#app{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Poppins', sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--text);-webkit-font-smoothing:antialiased}
+.top{padding:14px 16px;text-align:center}
+.top h1{margin:0;font-size:20px;letter-spacing:0.6px}
+
+/* Screens */
+.screen{display:none;padding:8px}
+.screen.active{display:block}
+
+/* Menu */
+.menu-cards{display:flex;flex-direction:column;gap:12px;padding:8px}
+.menu-btn{background:linear-gradient(180deg,#fff,#ffedf6);border:none;padding:14px;border-radius:14px;font-size:18px;box-shadow:0 6px 18px rgba(255,150,190,0.12)}
+.start-btn{display:block;margin:18px auto;background:linear-gradient(90deg,#ff9bc8,#ff77b3);color:white;padding:12px 22px;border-radius:20px;border:none;font-size:18px;box-shadow:0 10px 22px rgba(255,120,170,0.16)}
+.small{font-size:13px;color:#7a5a67}
+
+/* Play area */
+.play-area{display:flex;flex-direction:column;gap:10px;padding:6px}
+.game-top{display:flex;align-items:center;justify-content:space-between;padding:6px}
+.back-btn{background:none;border:none;font-size:16px;padding:8px}
+.controls button{background:transparent;border:1px solid rgba(0,0,0,0.06);padding:8px 10px;border-radius:10px;margin-left:6px}
+
+/* Avatar wrap - shoulder up */
+.avatar-wrap{width:92%;max-width:420px;margin:6px auto;background:linear-gradient(180deg,#fff,#fff7);border-radius:18px;padding:8px;box-shadow:0 12px 28px rgba(0,0,0,0.06);position:relative;overflow:hidden;height:380px;display:flex;align-items:center;justify-content:center}
+.layer{position:absolute;left:50%;transform:translateX(-50%);max-width:92%;height:auto;user-select:none;pointer-events:none}
+.base{width:70%;top:72px} /* base face+shoulders */
+.makeup-layer{width:70%;top:72px}
+.hair-layer{width:86%;top:0}
+.cloth-layer{width:86%;bottom:0}
+
+/* Panels for items */
+.panel{background:var(--card);padding:10px;border-radius:12px;margin:6px 8px}
+.scroll-x.items{display:flex;gap:10px;overflow-x:auto;padding:6px 2px}
+.items .item{min-width:78px;width:78px;height:78px;border-radius:12px;flex:0 0 auto;background:linear-gradient(180deg,#fff,#fff6);display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,0,0,0.04);padding:6px}
+.items img{max-width:100%;height:auto;border-radius:10px;touch-action:none}
+
+/* bottom bar */
+.bottom-bar{display:flex;justify-content:center;padding:10px}
+.photo-btn{background:linear-gradient(90deg,#ffd6ea,#ff9ccf);padding:12px 18px;border-radius:16px;border:none;font-size:18px;color:#4a2233}
+
+/* emoji animation */
+#emojiContainer{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.emoji{position:absolute;font-size:28px;animation:floatUp 1400ms cubic-bezier(.2,.9,.2,1) forwards}
+@keyframes floatUp{0%{transform:translateY(0) scale(0.95);opacity:1}100%{transform:translateY(-140px) scale(1.25);opacity:0}}
+
+/* Wardrobe */
+.wardrobe-main{padding:8px}
+.cloth-item{min-width:120px;min-height:160px;border-radius:12px;background:linear-gradient(180deg,#fff,#fff7);display:flex;align-items:flex-end;justify-content:center;padding:8px;flex:0 0 auto;margin-right:10px}
+
+/* responsive */
+@media (min-width:600px){
+  .play-area{flex-direction:row}
+  .avatar-wrap{width:55%;height:480px}
+  .panel{width:40%}
 }
-.screen{padding:18px;max-width:1100px;margin:0 auto}
-.hidden{display:none}
-.logo{font-size:28px;margin:24px 0;text-align:center}
-.menu-cards{display:flex;gap:12px;justify-content:center;margin:18px 0}
-.card{background:var(--card);border-radius:16px;padding:16px 20px;border:1px solid rgba(255,255,255,0.6);font-size:16px}
-.big{font-size:20px;padding:14px 22px;border-radius:18px;background:linear-gradient(90deg,var(--pink-300),#ffd3e8);border:none}
-.hint{text-align:center;margin-top:14px;color:#8f6a7b}
-.start-row{text-align:center}
-.topbar{display:flex;align-items:center;justify-content:space-between}
-.topbar button{background:none;border:none;font-size:16px}
-.game-area{display:flex;gap:12px;margin-top:12px}
-.avatar-area{flex:1;display:flex;align-items:center;justify-content:center;padding:12px}
-.avatar{width:320px;height:420px;background:linear-gradient(180deg,#fff,#fff6);border-radius:28px;box-shadow:0 8px 24px rgba(0,0,0,0.08);position:relative;overflow:hidden;display:flex;align-items:flex-start;justify-content:center}
-.face{position:absolute;top:86px;width:220px;height:220px;border-radius:50%;background:linear-gradient(#ffe8f2,#fff3f7);left:50%;transform:translateX(-50%);box-shadow:inset 0 -8px 20px rgba(255,150,190,0.08)}
-.eye{width:18px;height:18px;background:#5a3a5a;border-radius:50%;position:absolute;top:88px}
-.eye.left{left:58px}
-.eye.right{right:58px}
-.lips{width:60px;height:28px;border-radius:20px;background:linear-gradient(#ff9ac3,#ff6fae);position:absolute;top:170px;left:50%;transform:translateX(-50%)}
-.hair{position:absolute;top:0;width:100%;height:140px}
-.hair--placeholder{background:linear-gradient(90deg,#ffd6e9,#ffd0f0)}
-.clothes{position:absolute;bottom:0;width:100%;height:140px;border-top-left-radius:20px;border-top-right-radius:20px}
-.clothes--placeholder{background:linear-gradient(180deg,#fff4f9,#ffe6f2)}
-.palette{width:300px;background:rgba(255,255,255,0.6);padding:12px;border-radius:14px}
-.items{display:flex;flex-wrap:wrap;gap:8px}
-.item{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;border:2px dashed rgba(255,255,255,0.5);touch-action:none}
-.options{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.option{padding:10px;border-radius:12px;background:linear-gradient(180deg,#fff,#fff6);border:1px solid rgba(0,0,0,0.04)}
-.bottombar{display:flex;gap:12px;justify-content:center;margin-top:12px}
-.wardrobe-area{padding:12px}
-.clothes-list{display:flex;gap:12px;flex-wrap:wrap}
-.cloth{width:120px;height:160px;border-radius:12px;padding:8px;display:flex;align-items:flex-end;justify-content:center}
-button{cursor:pointer}
-#emojiContainer{position:fixed;left:0;top:0;pointer-events:none;width:100%;height:100%;overflow:hidden}
-.emoji{position:absolute;font-size:28px;animation:floatUp 1500ms ease-out forwards}
-@keyframes floatUp{0%{transform:translateY(0) scale(0.9);opacity:1}100%{transform:translateY(-140px) scale(1.2);opacity:0}}
-/* Responsive */
-@media(max-width:900px){
-  .game-area{flex-direction:column}
-  .palette{width:100%}
-  .avatar{width:260px;height:360px}
-  }
