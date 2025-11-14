@@ -1,75 +1,45 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #FFEFF8;
-  display: flex;
-  justify-content: center;
-  padding: 20px;
-}
+/* Pink Pastel Makeup Game CSS */ body { margin: 0; padding: 0; font-family: "Inter", sans-serif; background: linear-gradient(135deg, #ffe9f4, #ffffff); color: #444; }
 
-.container {
-  display: flex;
-  gap: 20px;
-}
+.app { display: flex; height: 100vh; overflow: hidden; }
 
-.controls {
-  background: #FFD9E8;
-  padding: 20px;
-  border-radius: 15px;
-  width: 220px;
-}
+/* LEFT PANEL */ .panel { width: 310px; background: #ffedf7; border-right: 3px solid #ffd3e6; padding: 20px; overflow-y: auto; }
 
-h2 {
-  margin-top: 0;
-  color: #7A4565;
-}
+.logo { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; } .logo-icon { font-size: 34px; } .title { font-size: 20px; font-weight: 700; } .sub { font-size: 13px; color: #a56c8c; }
 
-.tools {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+.menu-tabs { display: flex; gap: 10px; margin-bottom: 15px; } .tab { flex: 1; background: #ffcbe6; padding: 8px 0; text-align: center; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; } .tab.active { background: #ff8fca; color: white; }
 
-.tool {
-  padding: 10px;
-  border: none;
-  cursor: pointer;
-  background: #FFE5F2;
-  border-radius: 8px;
-  font-size: 16px;
-}
+.section { margin-bottom: 20px; }
 
-.tool.active {
-  background: #FFB7D3;
-  color: white;
-}
+.small { font-size: 13px; color: #555; font-weight: 600; }
 
-.palette {
-  margin-top: 20px;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
+.avatars, .dress-choices { display: flex; gap: 10px; margin-top: 10px; } .avatar-thumb { width: 65px; height: 90px; padding: 5px; background: white; border-radius: 10px; border: 2px solid #ffd9ea; cursor: pointer; transition: 0.2s; } .avatar-thumb:hover { transform: scale(1.05); } .avatar-thumb.selected { border-color: #ff74b8; box-shadow: 0 0 7px #ff9fd0; }
 
-.swatch {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  cursor: pointer;
-  border: 2px solid white;
-}
+.rules { font-size: 12px; padding-left: 20px; color: #444; }
 
-.swatch.selected {
-  outline: 3px solid #FF6FA7;
-}
+.big-actions { display: flex; flex-direction: column; gap: 10px; }
 
-.canvas {
-  background: white;
-  padding: 20px;
-  border-radius: 15px;
-}
+.btn { padding: 10px; font-weight: 600; border: none; background: #ff8ecb; border-radius: 10px; color: white; cursor: pointer; font-size: 14px; transition: 0.2s; } .btn:hover { transform: scale(1.05); } .secondary { background: #ffc7e7; color: #444; } .start-anim { animation: pulse 1.2s infinite alternate; } @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.08); } }
 
-svg {
-  width: 300px;
-  height: 400px;
-}
+/* STAGE */ .stage { flex: 1; padding: 20px; display: flex; flex-direction: column; }
+
+.stage-top { display: flex; justify-content: space-between; align-items: center; }
+
+.stage-title { display: flex; flex-direction: column; } .title-strong { font-size: 24px; font-weight: 700; }
+
+.stage-actions { display: flex; gap: 20px; align-items: center; }
+
+.emoji-row { display: flex; gap: 10px; } .emoji { padding: 8px; font-size: 22px; background: #ffe1f1; border-radius: 12px; cursor: pointer; transition: 0.2s; } .emoji:hover { transform: scale(1.2); }
+
+.control-icons .tool-btn { padding: 8px 10px; border-radius: 8px; background: #ffc9e8; border: none; cursor: pointer; }
+
+.control-row { display: flex; margin-top: 20px; justify-content: space-between; }
+
+.tools-left { display: flex; gap: 10px; } .tool-btn { background: #ffd4eb; border: none; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-weight: 600; } .tool-btn.active { background: #ff8ecb; color: white; }
+
+.palette-area { display: flex; flex-direction: column; gap: 8px; margin-right: 20px; } .palette { display: flex; gap: 8px; } .sw { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid #ffcde7; } .sw:hover { transform: scale(1.1); }
+
+.canvas-wrap { display: flex; justify-content: center; align-items: center; height: 100%; margin-top: 15px; } #avatarSVG { width: 320px; height: auto; }
+
+.bottom-row { margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+
+/* MODAL */ .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; } .modal-card { background: white; padding: 20px; width: 320px; border-radius: 10px; animation: pop 0.3s ease; } @keyframes pop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } } .modal-header { display: flex; justify-content: space-between; margin-bottom: 15px; } .modal-title { font-size: 18px; font-weight: 700; } .close { cursor: pointer; font-size: 18px; } .modal-list { font-size: 13px; padding-left: 20px; margin-bottom: 20px; } .modal-actions { text-align: center; }
